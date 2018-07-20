@@ -1,0 +1,92 @@
+
+#include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
+#include <UniversalTelegramBot.h>
+
+// Inicializamos la conexion WIFI con el Router
+char ssid[] = "XXXXXX";     // el nombre de tu Red
+char password[] = "XXXXXXXX"; // la clave de tu Red
+
+// Initialize Telegram BOT
+#define BOTtoken "XXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  // el token de tu BOT, lo obtenemos de BotFather
+
+WiFiClientSecure client;
+UniversalTelegramBot bot(BOTtoken, client);
+
+int Bot_mtbs = 50; //Tiempo medio entre el escane0 de omensajes
+long Bot_lasttime;   //exploracion de el ultimo mensaje
+bool Start = false;
+String chat_id2;
+bool flag = false;
+
+void handleNewMessages(int numNewMessages) {  
+                      for (int i = 0; i < numNewMessages; i++) {
+                                            String chat_id = String(bot.messages[i].chat_id);
+                                            chat_id2 = chat_id;
+                                            String text = bot.messages[i].text;
+                                            String from_name = bot.messages[i].from_name;
+                      if (from_name == "") from_name = "Guest";
+                      if (text == "/start") {
+                        String welcome = "Bienvenido a el BOT de Arduino , " + from_name + ".\n";
+                        welcome += "Escribe /opciones si quieres ver lo que puedo hacer.\n\n";
+                        Serial.println(text);
+                        bot.sendMessage(chat_id, welcome);
+                        
+                      }
+                      
+                      if (text == "/opciones") {
+                        String keyboardJson = "[[\"/Puerta1\", \"/Puerta2\"],[\"/Porton\"]]";
+                        bot.sendMessageWithReplyKeyboard(chat_id, "Selecciona una de las siguientes opciones:", "", keyboardJson, true);
+                        Serial.println(text);
+                      }
+                      
+                      if (text == "/Puerta1") {
+                        
+                        Serial.println(text);
+                        bot.sendMessage(chat_id, "Puerta Negra Abierta!");
+                      }
+
+                      if (text == "/Puerta2") {
+                        
+                        Serial.println(text);
+                        bot.sendMessage(chat_id, "Puerta Blanca Abierta!");
+                      }
+                      
+                      if (text == "/Porton") {
+                        
+                        Serial.println(text);
+                        bot.sendMessage(chat_id, "Porton Accionado!");
+                      }
+                                            }
+                      } // FIN handleNewMessages
+
+
+void setup() {
+  Serial.begin(9600);
+  // Establecer el modo WiFi y desconectarse de un AP si fue Anteriormente conectada
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
+  // Intentar conectarse a la red
+  Serial.print("Conectando al Wifi: ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+                                          Serial.print(".");
+                                          delay(500);
+                                        }
+  Serial.println("");
+  Serial.println("WiFi conectada");
+ 
+} // FIN SETUP
+
+void loop() {
+  if (millis() > Bot_lasttime + Bot_mtbs)  { int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+                                           while (numNewMessages) {
+                                                                    Serial.println("Mensaje Recibido");
+                                                                    handleNewMessages(numNewMessages);
+                                                                    numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+                                                                  }
+                                             Bot_lasttime = millis();
+                                            }
+} // FIN LOOP
