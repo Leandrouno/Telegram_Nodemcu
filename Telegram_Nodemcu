@@ -37,23 +37,24 @@ void handleNewMessages(int numNewMessages) {
                       if (text == "/opciones") {
                         String keyboardJson = "[[\"/Puerta1\", \"/Puerta2\"],[\"/Porton\"]]";
                         bot.sendMessageWithReplyKeyboard(chat_id, "Selecciona una de las siguientes opciones:", "", keyboardJson, true);
+                        Serial.print("Mensaje Recibido : ");
                         Serial.println(text);
                       }
                       
                       if (text == "/Puerta1") {
-                        
+                        Serial.print("Mensaje Recibido : ");
                         Serial.println(text);
                         bot.sendMessage(chat_id, "Puerta Negra Abierta!");
                       }
 
                       if (text == "/Puerta2") {
-                        
+                        Serial.print("Mensaje Recibido : ");
                         Serial.println(text);
                         bot.sendMessage(chat_id, "Puerta Blanca Abierta!");
                       }
                       
                       if (text == "/Porton") {
-                        
+                        Serial.print("Mensaje Recibido : ");
                         Serial.println(text);
                         bot.sendMessage(chat_id, "Porton Accionado!");
                       }
@@ -68,20 +69,28 @@ void setup() {
   WiFi.disconnect();
   delay(100);
   // Intentar conectarse a la red
-  Serial.print("Conectando al Wifi: ");
+  Serial.print("Conectando a la Red Wifi: ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
+  pinMode(LED_BUILTIN, OUTPUT);
   while (WiFi.status() != WL_CONNECTED) {
                                           Serial.print(".");
                                           delay(500);
                                         }
   Serial.println("");
   Serial.println("WiFi conectada");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());   
  
 } // FIN SETUP
 
 void loop() {
-  if (millis() > Bot_lasttime + Bot_mtbs)  { int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+                          if (WiFi.status() == WL_CONNECTED) {
+                            digitalWrite(LED_BUILTIN, HIGH);
+                                        } else {digitalWrite(LED_BUILTIN, LOW);}
+                                        
+                          if (millis() > Bot_lasttime + Bot_mtbs)  { int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
                                            while (numNewMessages) {
                                                                     Serial.println("Mensaje Recibido");
                                                                     handleNewMessages(numNewMessages);
