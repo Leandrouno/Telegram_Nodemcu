@@ -10,9 +10,9 @@ char password[] = "XXXXXXXX"; // la clave de tu Red
 // Initialize Telegram BOT
 #define BOTtoken "XXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  // el token de tu BOT, lo obtenemos de BotFather
 #define LED_BUILTIN D1
-#define PUERTA1 D2
-#define PUERTA2 D3
-#define PORTON D4
+#define PUERTA2     D3
+#define PUERTA1     D5
+#define PORTON      D7
 
 WiFiClientSecure client;
 UniversalTelegramBot bot(BOTtoken, client);
