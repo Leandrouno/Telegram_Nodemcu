@@ -49,40 +49,33 @@ void handleNewMessages(int numNewMessages) {
                       }
                       
                       else if (text == "Puerta1") {
-                        digitalWrite(PUERTA1, HIGH);
-                        delay(500);
                         digitalWrite(PUERTA1, LOW);
+                        delay(500);
+                        digitalWrite(PUERTA1, HIGH);
                         Serial.println("Puerta Negra");
                         Serial.println();                        
                         bot.sendMessage(chat_id, "Puerta Negra Abierta!");
                       }
 
                       else if (text == "Puerta2") {
-                        digitalWrite(PUERTA2, HIGH);
-                        delay(500);
                         digitalWrite(PUERTA2, LOW);
+                        delay(500);
+                        digitalWrite(PUERTA2, HIGH);
                         Serial.println("Puerta Blanca");
                         Serial.println();
                         bot.sendMessage(chat_id, "Puerta Blanca Abierta!");
                       }
                       
                       else if (text == "Porton") {
-                        digitalWrite(PORTON, HIGH);
-                        delay(500);
                         digitalWrite(PORTON, LOW);
+                        delay(500);
+                        digitalWrite(PORTON, HIGH);
                         Serial.println("Porton");
                         Serial.println();
                         bot.sendMessage(chat_id, "Porton Accionado!");
                       }
 
-                      else if (text == "Porton") {
-                        digitalWrite(PORTON, HIGH);
-                        delay(500);
-                        digitalWrite(PORTON, LOW);
-                        Serial.println("Porton");
-                        Serial.println();
-                        bot.sendMessage(chat_id, "Porton Accionado!");
-                      }
+
 
                                             }
                       } // FIN handleNewMessages
@@ -102,9 +95,9 @@ void setup() {
   pinMode(PUERTA1, OUTPUT);
   pinMode(PUERTA2, OUTPUT);
   pinMode(PORTON, OUTPUT);
-  digitalWrite(PUERTA1, LOW);
-  digitalWrite(PUERTA2, LOW);
-  digitalWrite(PORTON, LOW);
+  digitalWrite(PUERTA1, HIGH);
+  digitalWrite(PUERTA2, HIGH);
+  digitalWrite(PORTON, HIGH);
   while (WiFi.status() != WL_CONNECTED) {
                                           Serial.print(".");
                                           delay(500);
