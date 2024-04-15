@@ -1,48 +1,50 @@
-#include "CTBot.h"
-#define ESTADO_TIMBRE_CALLBACK "EstadoTimbre"
 
-#define BOTON_PIN D4
-#define LED_BUILTIN D2
+
+#include "CTBot.h"
+
+#define ESTADO_TIMBRE_CALLBACK "EstadoTimbre"
+#define PULSADOR  D4
+#define LED D2
 
 CTBot myBot;
 
 String ssid = "";
 String pass = "";
 String token = "";
-long id = ; // SIN COMILLAS
+long id = ;//SIN COMILLAS
 
-bool BotonAnterior = HIGH; // Estado anterior del botón
-bool BanderaInicio = false; // Indica si el sistema ha iniciado
+int BanderaInicio=0, BanderaBoton=0;
+volatile bool BanderaBotonPresionado = false;
+
 
 void setup() {
-    Serial.begin(9600);
 
-    pinMode(BOTON_PIN, INPUT_PULLUP);
-    pinMode(LED_BUILTIN, OUTPUT);
-
-    myBot.wifiConnect(ssid, pass);
-    myBot.setTelegramToken(token);
-
-    if (myBot.testConnection()) {
-        Serial.println("Conectado a la Red Wifi");
-        digitalWrite(LED_BUILTIN, HIGH);
-    } else {
-        Serial.println("Error al Conectar a la Red");
-        digitalWrite(LED_BUILTIN, LOW);
-    }
-
-    mensajeInicio();
-}
+        Serial.begin(9600);
+   
+        pinMode(PULSADOR, INPUT_PULLUP);
+        pinMode(LED, OUTPUT);
+        
+        attachInterrupt(digitalPinToInterrupt(PULSADOR), BotonPresionado, FALLING);
+  
+        myBot.wifiConnect(ssid, pass);
+  
+        myBot.setTelegramToken(token);
+  
+        if (myBot.testConnection()){
+              Serial.println("Conectado a la Red Wifi");
+              digitalWrite(LED, HIGH);
+              }  else{
+                      Serial.println("Error al Conectar a la Red");
+                      digitalWrite(LED, LOW);}
+ 
+} // FIN SETUP
 
 void loop() {
-    if (digitalRead(BOTON_PIN) == LOW && BotonAnterior == HIGH) {
-        envioMensaje();
-        BotonAnterior = LOW;
-    } else {
-        BotonAnterior = digitalRead(BOTON_PIN);
-    }
+   
+    if (BanderaInicio == 0){ mensaje_inicio ();}
+    if ( BanderaBotonPresionado ) {  envio_mensaje ();} 
 
-    TBMessage msg;
+        TBMessage msg;
 
     if (myBot.getNewMessage(msg)){
 
@@ -60,21 +62,38 @@ void loop() {
 
     }
 
+} //FIN LOOP
 
-}
 
-void mensajeInicio() {
-    Serial.println("Iniciado...");
-    Serial.println("Enviando Mensaje de Inicio .....");
-    myBot.sendMessage(id, "Sistema Timbre Iniciado....");
-    Serial.println("Mensaje Enviado");
-    Serial.println(" ");
-    BanderaInicio = true;
-}
+ICACHE_RAM_ATTR void BotonPresionado() {    
+                        int button = digitalRead(PULSADOR);
+                        if(button == LOW && BanderaBoton == 0)
+                          {
+                          BanderaBotonPresionado = true; 
+                          Serial.println("Boton Presionado");
+                          BanderaBoton = 1;
+                          }                                                    
+                        return;
+                       } // FIN  BOTON PRESIONADO 
+             
+void mensaje_inicio (){
+                          Serial.println("Iniciado...");
+                          Serial.println("Enviando Mensaje de Inicio ....."); 
+                          myBot.sendMessage(id, "Sistema Timbre Iniciado....");
+                          Serial.println("Mensaje Enviado"); 
+                          Serial.println(" "); 
+                          BanderaInicio=1;
+                          
+  
+} // FIN MENSAJE INICIO
 
-void envioMensaje() {
-    Serial.println("Enviando Mensaje .....");
-    myBot.sendMessage(id, "Timbre");
-    Serial.println("Mensaje Enviado");
-    Serial.println(" ");
-}
+
+void envio_mensaje (){
+                        Serial.println("Enviando Mensaje.....");  
+                        BanderaBotonPresionado = false;
+                        myBot.sendMessage(id, "Timbre");
+                        Serial.println("Mensaje Enviado");
+                        Serial.println(" "); 
+                        BanderaBoton = 0;
+                                         
+} // FIN ENVIO MENSAJE    
