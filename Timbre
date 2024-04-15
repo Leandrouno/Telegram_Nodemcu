@@ -1,0 +1,80 @@
+#include "CTBot.h"
+#define ESTADO_TIMBRE_CALLBACK "EstadoTimbre"
+
+#define BOTON_PIN D4
+#define LED_BUILTIN D2
+
+CTBot myBot;
+
+String ssid = "";
+String pass = "";
+String token = "";
+long id = ; // SIN COMILLAS
+
+bool BotonAnterior = HIGH; // Estado anterior del botón
+bool BanderaInicio = false; // Indica si el sistema ha iniciado
+
+void setup() {
+    Serial.begin(9600);
+
+    pinMode(BOTON_PIN, INPUT_PULLUP);
+    pinMode(LED_BUILTIN, OUTPUT);
+
+    myBot.wifiConnect(ssid, pass);
+    myBot.setTelegramToken(token);
+
+    if (myBot.testConnection()) {
+        Serial.println("Conectado a la Red Wifi");
+        digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+        Serial.println("Error al Conectar a la Red");
+        digitalWrite(LED_BUILTIN, LOW);
+    }
+
+    mensajeInicio();
+}
+
+void loop() {
+    if (digitalRead(BOTON_PIN) == LOW && BotonAnterior == HIGH) {
+        envioMensaje();
+        BotonAnterior = LOW;
+    } else {
+        BotonAnterior = digitalRead(BOTON_PIN);
+    }
+
+    TBMessage msg;
+
+    if (myBot.getNewMessage(msg)){
+
+        if(msg.sender.id == id){
+
+            if (msg.messageType == CTBotMessageText){
+                      if (msg.text.equalsIgnoreCase("EstadoTimbre")){ myBot.sendMessage(msg.sender.id, "Timbre OK MONOO !");}
+            }
+            else if (msg.messageType == CTBotMessageQuery){
+                      if (msg.callbackQueryData.equals(ESTADO_TIMBRE_CALLBACK)){myBot.endQuery(msg.callbackQueryID, "Timbre OK MONOO !", true);}
+            }
+
+        }else{myBot.sendMessage(msg.sender.id, "JUIRAAAA !!");}
+
+
+    }
+
+
+}
+
+void mensajeInicio() {
+    Serial.println("Iniciado...");
+    Serial.println("Enviando Mensaje de Inicio .....");
+    myBot.sendMessage(id, "Sistema Timbre Iniciado....");
+    Serial.println("Mensaje Enviado");
+    Serial.println(" ");
+    BanderaInicio = true;
+}
+
+void envioMensaje() {
+    Serial.println("Enviando Mensaje .....");
+    myBot.sendMessage(id, "Timbre");
+    Serial.println("Mensaje Enviado");
+    Serial.println(" ");
+}
